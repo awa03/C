@@ -1,0 +1,235 @@
+#include <iostream>
+#include <random>
+#include <iomanip>
+using namespace std;
+
+/* 
+   PrintHeading simply prints the introductory output. 
+   Parameters: initial amount of money received 
+*/ 
+void PrintHeading(int money);
+/* 
+    GetBet prompts for and reads in a bet.  The function performs all 
+    error checking necessary to insure that a valid bet is read in 
+    and does not return until a valid bet is entered. 
+    Parameters: 
+        money: the amount of money the player currently has 
+        bet: the bet chosen by the user 
+*/ 
+int GetBet(int money, int& bet); 
+/* 
+    GetGuess reads in a guess.  The user is not prompted for the guess in 
+    this function. The user only gets one chance to input a guess value. 
+    Return Value: the value of the guess if the input is valid 
+                  0 if the input guess was not valid 
+*/ 
+int GetGuess(int userGuess, int randomNum); 
+/* 
+    CalcNewMoney determines the amount of money the player has won or 
+    lost during the last game. 
+    Parameters: 
+        money:   the amount of money the player had going into the game 
+        bet:     the amount the player bet on the current game 
+        guesses: the number of guesses it took the player to win. 
+                 -1 if the player did not guess correctly 
+    Return Value: the new amount of money the player has 
+*/ 
+int CalcNewMoney(int money, int bet, int guesses, int guessCorrect); 
+/* 
+    PlayAgain prompts the user to play the game again and reads in a response, 
+    using a single character to represent a yes or no reply. 
+    Error checking is performed on that response. 
+    Return Value: true if the user wants to play again 
+                  false if the user does not want to play again. 
+*/ 
+string PlayAgain(string continueGame); 
+/* 
+    PlayGame plays a single game, performing all the necessary calculations, 
+    input, and output.   
+    Parameters: 
+        money: the amount of money the player has at the start of the game. 
+    Return Value: how much the player has after the game. 
+*/ 
+int PlayGame(int money); 
+
+int main()
+{
+    // intialize var
+    int money = 1000;
+    string continueGame;
+    string userPlay;
+
+    // ask user if they would like to play
+    PrintHeading(money);
+    //use to validate that it is yes or no
+    while((userPlay != "y")&&(userPlay != "n"))
+    {
+        cout<<"Would You Like To Play A Game? (y/n)";
+        cin>>userPlay;
+    }
+    if(userPlay == "y")
+    {
+        money = PlayGame(money);
+    }
+    // exit the code
+    
+    continueGame = PlayAgain(continueGame);
+    while(continueGame == "y")
+    {
+        money = PlayGame(money);
+        continueGame.clear();
+        continueGame = PlayAgain(continueGame);
+    }
+    
+    cout<<"Thanks For Playing"<<endl;
+    return 0;
+}
+void PrintHeading(int money)
+{
+    // Prints the heading for the start of the game
+    cout<<"################################################################"<<endl;
+    cout<<"                  Welcome To The Guessing Game"<<endl<<endl; 
+    cout<<"Enter A Random Number Between One and One Hundred To Try and Win"<<endl;
+    cout<<"################################################################"<<endl;
+    cout<<"Your Current Balance: "<<money<<endl;
+}
+int PlayGame(int money)
+{
+    // Declare the variables for the Play Game Function
+    // The amount that is being bet
+    int betAmount;
+    // The Users Bet
+    int userBet;
+    // The Users numeric guess
+    int userGuess;
+    // Is the guess correct
+    int guessCorrect;
+    // The number of Guesses that the user has taken
+    int guesses;
+    // The Maximum number of attempts that the user may take to guess
+    const int MAX_ATTEMPTS = 7;
+    // Continue and play another game
+    string continueGame = "y";
+    
+    // random number generator
+    random_device myEngine;
+    uniform_int_distribution<int>randomInt(1,100);
+    int randomNum = randomInt(myEngine);
+    // Check To See If The Bet Is a Valid Number Entry
+    userBet= GetBet(money, betAmount);
+    
+    // Loop to see if the user has surpased the alloted number of guesses
+    for(guesses = 1; guesses < MAX_ATTEMPTS; guesses++)
+    {
+        // output for the entry of the users guess
+        cout<<"###########################################"<<endl;
+        cout<<"             Enter Guess Below"<<endl; 
+        cout<<"###########################################"<<endl;
+        // validates that the guess is a intreger
+        
+        // verify function that the guess is correct and valid
+        guessCorrect = GetGuess(userGuess, randomNum);
+
+        // if the guess is valid then the correct setting is set to 1 (True in binary)
+        if(guessCorrect == randomNum)
+        {
+            guessCorrect = 1;
+            break;
+        }
+        // if not then continue the loop
+        else
+            continue;
+    }
+    cout<<"###################################"<<endl;
+    cout<<"     The Correct Number Was:"<<randomNum<<endl;
+    cout<<"###################################"<<endl;
+    // calculate the users new bal after the game has run
+    money = CalcNewMoney(money, userBet, guesses, guessCorrect);
+   
+    // if the user wants to play again they say y or n
+    return(money);
+}
+int GetBet(int money, int& bet)
+{
+    // get the users bet ammount
+    const int MIN = 10;
+    cout<<"___________________________________________"<<endl;
+    cout<<"Enter the Amount That You Would Like To Bet"<<endl;
+    // Using The While Loop To Determine if the Entry Is Valid
+    while((!(cin>>bet))||(bet > money)||(bet < MIN))
+    {
+        // must be over min to prevent program errors form occuring
+        // (errors such as divide by 0)
+            cout<<"___________________________________________"<<endl;
+            cout<<"     Invalid Entry Please Try Again :)"<<endl;
+            cin.clear();
+            cin.ignore(123, '\n');  
+    }  
+    return(bet);
+}
+int GetGuess(int userGuess, int randomNum)
+{
+    // TO SEE IF THE GUESS IS CORRECT DATA WISE 
+    while(!(cin>>userGuess))
+    {
+        cout<<"###########################################"<<endl;
+        cout<<"            Entry is not Valid"<<endl; 
+        cout<<"###########################################"<<endl;
+        cin.clear();
+        cin.ignore(123, '\n');
+    }
+    // return if the guess
+    if(userGuess == randomNum)
+    {
+        return userGuess;
+    }
+    else 
+        // find out if the guess is high or low and output to the user that information
+        if(userGuess > randomNum)
+        {
+            cout<<"*Entered Number Is Too High*"<<endl;
+        }
+        else if(userGuess< randomNum)
+        {
+            cout<<"*Entered Number Is Too Low*"<<endl;
+        }
+        return(0);
+}
+// calculate the new money amount 
+int CalcNewMoney(int money, int bet, int guesses, int guessCorrect) 
+{
+    // intialize the veriables that are being used in this function
+    float userWinnings;
+    float newBal;
+    
+    
+    // if the guess and the data is correct then the user has won and this if statement is true
+    if((guesses <= 6)&&(guessCorrect == 1))
+    {   
+        //calculate the amount won by dividing the bet by the guesess and adding to the total money
+        userWinnings = ((float)bet/(float)guesses);
+        newBal = money + userWinnings;
+    }
+    else
+        // calculate loss by subtracting the bet from the total 
+        newBal = money - bet;
+        userWinnings = bet;
+        // output the users winnings or losings depending on the result of the game
+    cout<<"___________________________________________"<<endl;
+    cout<<"YOUR BALANCE HAS UPDATED. SEE CHANGES BELOW"<<endl;
+    cout<<"___________________________________________"<<endl;
+    cout<<"Change Made:"<<userWinnings<<endl;
+    cout<<"Balance: $"<<newBal<<endl;
+    return(newBal);
+}
+string PlayAgain(string continueGame)
+{
+
+    while((continueGame != "y")&&(continueGame != "n"))
+    {
+        cout<<"Would You Like To Play Again"<<endl;
+        cin>>continueGame;
+    }
+    return(continueGame);
+
+}
